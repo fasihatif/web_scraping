@@ -1,4 +1,4 @@
-job_finder <- function(x,y){
+job_finder <- function(jobtitle,pages){
   
   job_scrapper <- function(my_url){
     
@@ -31,7 +31,7 @@ job_finder <- function(x,y){
     }
   
   
-  url_list <- paste0('https://jobs.apple.com/en-us/search?location=united-states-USA&sort=relevance&search=',x,'&page=',1:y)
+  url_list <- paste0('https://jobs.apple.com/en-us/search?location=united-states-USA&sort=relevance&search=',jobtitle,'&page=',1:pages)
   
   df_list <- lapply(url_list,job_scrapper)
   
