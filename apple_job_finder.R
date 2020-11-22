@@ -41,6 +41,4 @@ job_finder <- function(x,y){
   
 }
 
-job_finder('cloud',2)
-
-database
+job_finder('cloud',2) ## Please close the excel file before trying to run again with new search parameters
