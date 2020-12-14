@@ -250,23 +250,28 @@ plots_year <- ggplot(win_ranking, aes(rank, group = winner,
   scale_x_reverse() +
   guides(color = FALSE, fill = FALSE) +
   
-  labs(title = "Total no of wins by F1 Drivers Since {closest_state}", x = "", y = "Winners",
+  labs(title = "Total no of wins by F1 Drivers from 2015 - {closest_state}", x = "", y = "Winners",
        caption = "Most No of wins by F1 Drivers 2015-2020") +
-  theme(plot.title = element_text(hjust = 0, size = 22),
+  theme_classic() +
+  theme(plot.title = element_text(hjust = 0.3, vjust = 1, size = 22),
         axis.ticks.y = element_blank(),  # These relate to the axes post-flip
         axis.text.y  = element_blank(),  # These relate to the axes post-flip
         plot.margin = margin(1,1,1,4, "cm")) +
   
-  transition_states(year, transition_length = 4, state_length = 1) +
+  transition_states(year, transition_length = 3, state_length = 0) +
   ease_aes('cubic-in-out')
       
 
 # Save as preferred rendered format
 # It will take a minute or so to create GIF
-gif <- animate(plots_year, 200, fps = 10, duration = 10, width = 800, height = 600, renderer = gifski_renderer("gganim.gif"))
+gif <- animate(plots_year, 200, fps = 10, duration = 9, width = 800, height = 600, renderer = gifski_renderer("gganim.gif"))
 
 ```
 
 ```{r, echo = FALSE, message= FALSE,warning = FALSE}
 knitr::include_graphics(gif)
 ```
+
+## **Summary**
+
+We were able to web scrap race results from the past 70 seasons from the F1 website and cleaned the dataframe. Then we visualized the results via various graphs and found out that Lewis Hamilton is the most successful F1 driver in terms of race wins followed closely by Michael Schumacher. The top 5 most successful drivers had less wins in initial 2-3 years of their racing career but went on to dominate for the next 5-6 years. For race results since 2015, again Lewis Hamilton has showed his dominant form and has the highest number of wins followed by Nico Rosberg who although retired after 2016 season still ranks in 2nd place.
