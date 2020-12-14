@@ -217,7 +217,7 @@ We will now take a subset of our results for 2015-2020 from our results database
 # Import a table of cumulative race wins for the past 5 years
 # This table was made using our original results database
 
-#driversTable <- read_csv('cumulative_results.csv',col_names = TRUE)
+# driversTable <- read_csv('cumulative_results.csv',col_names = TRUE)
 
 my_url_cs <- "https://raw.githubusercontent.com/fasihatif/web_scraping/master/final_project/cumulative_results.csv"
 driversTable <- read_csv(my_url_cs)
@@ -253,7 +253,7 @@ plots_year <- ggplot(win_ranking, aes(rank, group = winner,
   labs(title = "Total no of wins by F1 Drivers from 2015 - {closest_state}", x = "", y = "Winners",
        caption = "Most No of wins by F1 Drivers 2015-2020") +
   theme_classic() +
-  theme(plot.title = element_text(hjust = 0.3, vjust = 1, size = 22),
+  theme(plot.title = element_text(hjust = 0.5, vjust = 1.5, size = 22),
         axis.ticks.y = element_blank(),  # These relate to the axes post-flip
         axis.text.y  = element_blank(),  # These relate to the axes post-flip
         plot.margin = margin(1,1,1,4, "cm")) +
