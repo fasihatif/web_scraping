@@ -3,7 +3,7 @@ year,winner,value
 2015,Nico Rosberg,6
 2015,Sebestian Vettel,3
 2015,Daniel Ricciardo,1
-2015,Max Verstappen,0
+2015,Max Verstappen,-1
 2015,Valtteri Bottas,0
 2016,Lewis Hamilton,20
 2016,Max Verstappen,1
@@ -16,7 +16,7 @@ year,winner,value
 2017,Max Verstappen,3
 2017,Valtteri Bottas,3
 2017,Daniel Ricciardo,2
-2017,Nico Rosberg,0
+2017,Nico Rosberg,-1
 2018,Lewis Hamilton,40
 2018,Sebestian Vettel,13
 2018,Max Verstappen,5
