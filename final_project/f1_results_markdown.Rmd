@@ -10,18 +10,24 @@ output:
 
 F1 is a sport that is loved by millions of fans each year who love to watch it for its speed, technology, rivalries, and drama. Formula 1 recently completed its 70 years anniversary and last weekend ended the 2020 season with the Grand Finale at Abu Dhabi. Lewis Hamilton clinched his 7th world title equaling Michael Schumachers record. This got me thinking over who have been the best F1 drivers over the past 70 years. The metric that i chose to to measure success was number of race wins.
 
+## **Web Scraping**
+
+I scraped the data from the official website of Formula One using the 'rvest' package. The website has a results page that lists the results for all seasons since 1950. The page lists one season at a time so to go on another seasons result, you need to select season year from the menu. Getting the result for one season was easy but to get all of the results for 70 years was quite hard. I experimented around with a for loop that inserted the season year into the URL and pulled out that seasons result using lapply function I was able to pull the data into a dataframe but it came out extremely messy. The values that belonged to one column were in another column in addition to abbreviations for driver names that also got scrapped. To clean the dataframe, i added an if else statement where if the column had any values, that data would be cleaned else a null value would be put in place. This fixed all the issues and my dataframe was able to come out clean and tidy.
+
 ```{r, include=FALSE, message=FALSE, warning=FALSE}
+# Set Cran mirror to avoid error
 local({r <- getOption("repos")
        r["CRAN"] <- "http://cran.r-project.org" 
        options(repos=r)
 })
 
+# Load libraries
 library(tidyverse)
 library(data.table)
 library(rvest)
 library(gganimate)
 library(stringr)
-install.packages("gifski")
+#install.packages("gifski")
 library(gifski)
 library(knitr)
 ```
@@ -98,7 +104,7 @@ write_csv(f1_results.csv)
 }
 ```
 
-```{r, include = FALSE, message= FALSE,warning = FALSE}
+```{r, include=  FALSE, message= FALSE,warning = FALSE}
 #### Apply lapply function
 get_all_seasons <- function(my_url){
   database <- rbindlist(lapply(my_url,race_results))
@@ -107,7 +113,7 @@ get_all_seasons <- function(my_url){
 }
 ```
 
-```{r,include = FALSE, message= FALSE,warning = FALSE}
+```{r,include  = FALSE, message= FALSE,warning = FALSE}
 #### Set for loop to get URLs
 get_all_seasons_results <- function(from_year,to_year){
 i <- 1
@@ -126,13 +132,12 @@ get_all_seasons(my_urls) #call function to input urls in lapply
 get_all_seasons_results(1950,2020)
 ```
 
-Our dataframe for the race results looks like below:
+Our dataframe for the race results from season of 1050- 2020 looks like the following:
 
 ```{r, echo = FALSE, message= FALSE,warning = FALSE}
 table_format <- tail(database)
 library(knitr)
 kable(table_format)
-
 
 ```
 
@@ -156,18 +161,14 @@ database %>%
 
 The graph shows that Lewis Hamilton has been the most successful F1 driver of all time with 95 wins followed by the renowned Michael Schumacher with 91 wins and Sebastian Vettel with 53 wins.
 
-```{r, include = FALSE, message= FALSE,warning = FALSE}
-# Extract years from date column
-database$year <-str_sub(database$race_date, start= -4)
-
-
-```
-
-## Top 5 most successful drivers winning progression
+## Top 5 most successful drivers winning progression over their career
 
 We previously calculated the top 5 most successful drivers of all time. Now we will focus at the rate at which these 5 drivers gathered their race wins over the their racing careers:
 
-```{r, echo = FALSE, fig.width = 11, fig.height=5.5, message= FALSE,warning = FALSE}
+```{r, fig.width = 11, fig.height=5.5, echo = FALSE, message= FALSE,warning = FALSE}
+
+# Extract years from date column
+database$year <-str_sub(database$race_date, start= -4)
 
 #Filter database for top 5 most successful drivers
 drivers <- c("Lewis Hamilton","Michael Schumacher", "Sebastian Vettel", "Alain Prost", "Ayrton Senna")
@@ -186,10 +187,16 @@ top_5_per_year_cs <- top_5_per_year %>% group_by(winner) %>% arrange(winner,year
 
 # Visualize the no of wins for each driver over their racing career  
 top_5_per_year_cs %>% ggplot(aes(x = year, y = cs, fill = winner,group = winner)) + geom_line(aes(colour=winner),size = 2) +
-  labs( x = "Year", y = "Races Won", title = "Race wins progression of Top 5 most successful drivers over their careers") + 
+  labs( x = "Year",
+        y = "Races Won",
+        title = "Race wins progression of Top 5 most successful drivers over their careers") + 
   scale_y_continuous(breaks = seq(0,100, by=20)) + 
   scale_x_continuous(breaks = seq(1978,2020, by=4)) + 
-  theme(legend.position = "none",axis.title=element_text(size=14,face="bold")) +     theme(axis.text = element_text(size = 14), plot.title = element_text(size = 20, face = "bold",vjust = 2.5,hjust = 0.7)) + theme_classic() +
+  theme_classic() +
+  theme(legend.position = "none",
+        axis.title=element_text(size=14,face="bold"),
+        plot.title=element_text(size = 14,face = "bold", hjust = 0.4),
+        axis.text = element_text(size = 14,vjust = 2.5,hjust = 0.7)) +
     annotate("text", x = 1994, y = 57, label = "Alain Prost", fontface = 2) +
     annotate("text", x = 1995, y = 45, label = "Ayrton Senna", fontface = 2) +
     annotate("text", x = 2008, y = 96, label = "Michael Schumacher", fontface = 2) +
