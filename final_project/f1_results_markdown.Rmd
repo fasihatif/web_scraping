@@ -1,7 +1,29 @@
+---
+title: "f1_results"
+author: "Fasih Atif"
+date: "12/14/2020"
+output: pdf_document
+---
+
+```{r, echo = FALSE}
+library(tidyverse)
+library(data.table)
+library(rvest)
+library(gganimate)
+library(stringr)
+install.packages("gifski")
+library(gifski)
+```
+
+```{r, echo = FALSE}
+
+# Web scraping data via rvest
+# Data cleaning done inside the function with if else statement
 
 race_results <- function(x){
   
 url <- read_html(x)
+
 
 #### Pull race names
 gp_name <- url %>%
@@ -13,11 +35,8 @@ if (length(gp_name) ==0) {
     # fix race names
     gp_name <- trimws(gsub("\n","",gp_name))
   }
+
   
-# fix race names
-#gp_name <- trimws(gsub("\n","",gp_name))
-
-
 #### Pull race dates
 race_date <- url %>%
   html_nodes('.dark.hide-for-mobile') %>%
@@ -25,7 +44,8 @@ race_date <- url %>%
 if (length(race_date) == 0) {
   race_date <- ''
 }
-  
+ 
+
 #### Pull race winners
 driver_winner <- url %>%
   html_nodes('.dark+.bold') %>%
@@ -39,10 +59,6 @@ else{
   driver_winner <- gsub('.{4}$', '', driver_winner) # remove last 4 characters
 }
 
-# Fix race winner names
-#driver_winner <- trimws(gsub("\n","",driver_winner)) # remove \n from string
-#driver_winner <- gsub("\\s+"," ",driver_winner) # remove all empty spaces between words
-#driver_winner <- gsub('.{4}$', '', driver_winner) # remove last 4 characters
 
 #### Pull team names
 team <- url %>%
@@ -55,8 +71,6 @@ else{
   team<- team[seq(2, length(team), 2)] # extract every 2nd element from vector
 }
   
-# Fix team name
-#team<- team[seq(2, length(team), 2)] # extract every 2nd element from vector
 
 #### Pull no of laps
 laps <- url %>%
@@ -70,25 +84,59 @@ if (length(laps) ==0) {
 df <- data.frame('race_name' = gp_name, 'race_date' = race_date, 'winner' = driver_winner,'team' = team, 'laps' = laps)
 return(df)
 }
+```
 
-
+```{r, echo = FALSE}
 #### Apply lapply function
-get_all_seasons_results <- function(my_url){
-  #season_urls <- paste0('https://www.formula1.com/en/results.html/',my_url,'/races.html')
-  #database <- rbindlist(lapply(season_urls,race_results))
+get_all_seasons <- function(my_url){
   database <- rbindlist(lapply(my_url,race_results))
   database <<- database
   return(database)
 }
+```
 
+```{r}
 #### Set for loop to get URLs
+get_all_seasons_results <- function(from_year,to_year){
 i <- 1
 my_urls <- list()
-for(page_result in seq(from = 2015, to = 2019, by = 1)) {
+for(page_result in seq(from = from_year, to = to_year, by = 1)) {
   my_urls[i] = paste0('https://www.formula1.com/en/results.html/',page_result,'/races.html')
   i <- i+1
 }
+get_all_seasons(my_urls) #call function to input urls in lapply
+}
+```
 
+```{r}
+# Function with date parmeters to pull results
+# get_all_seasons_results(from_year,to_year)
+get_all_seasons_results(2015,2020)
+```
 
-#### Call function
-get_all_seasons_results(my_urls)
+## Exploratory Data Analysis
+
+### Top 5 most no of wins by F1 drivers (1950-2020)
+
+We can check who have been the most successful drivers of all time using the visualization below:
+
+```{r, fig.width = 8, fig.height = 5 , echo = FALSE}
+
+database %>% 
+  group_by(winner) %>%
+  summarize(total_wins = n()) %>%
+  arrange(desc(total_wins)) %>%
+  head(5) %>%
+  ggplot(aes(x = reorder(winner, total_wins), y = total_wins, fill = winner,label = total_wins)) + geom_col() + coord_flip() +geom_text(hjust = -0.3) +
+  labs( x = "F1 Race Winners", y = "Total no of Wins", title = "Top 5 most no of wins by F1 drivers (2010-2020)")
+  
+```
+
+The graph shows that Lewis Hamilton has been the most successful F1 driver of all time with 95 wins followed by the renowned Michael Schumacher with 91 wins and Sebestian Vettel with 53 wins.
+
+```{r}
+
+```
+
+```{r}
+```

@@ -1,3 +1,7 @@
+library(tidyverse)
+library(data.table)
+library(rvest)
+
 
 race_results <- function(x){
   
@@ -14,8 +18,6 @@ if (length(gp_name) ==0) {
     gp_name <- trimws(gsub("\n","",gp_name))
   }
   
-# fix race names
-#gp_name <- trimws(gsub("\n","",gp_name))
 
 
 #### Pull race dates
@@ -39,10 +41,6 @@ else{
   driver_winner <- gsub('.{4}$', '', driver_winner) # remove last 4 characters
 }
 
-# Fix race winner names
-#driver_winner <- trimws(gsub("\n","",driver_winner)) # remove \n from string
-#driver_winner <- gsub("\\s+"," ",driver_winner) # remove all empty spaces between words
-#driver_winner <- gsub('.{4}$', '', driver_winner) # remove last 4 characters
 
 #### Pull team names
 team <- url %>%
@@ -55,8 +53,7 @@ else{
   team<- team[seq(2, length(team), 2)] # extract every 2nd element from vector
 }
   
-# Fix team name
-#team<- team[seq(2, length(team), 2)] # extract every 2nd element from vector
+
 
 #### Pull no of laps
 laps <- url %>%
@@ -73,22 +70,30 @@ return(df)
 
 
 #### Apply lapply function
-get_all_seasons_results <- function(my_url){
-  #season_urls <- paste0('https://www.formula1.com/en/results.html/',my_url,'/races.html')
-  #database <- rbindlist(lapply(season_urls,race_results))
+get_all_seasons <- function(my_url){
   database <- rbindlist(lapply(my_url,race_results))
   database <<- database
   return(database)
 }
 
 #### Set for loop to get URLs
+get_all_seasons_results <- function(from_year,to_year){
 i <- 1
 my_urls <- list()
-for(page_result in seq(from = 2015, to = 2019, by = 1)) {
+for(page_result in seq(from = from_year, to = to_year, by = 1)) {
   my_urls[i] = paste0('https://www.formula1.com/en/results.html/',page_result,'/races.html')
   i <- i+1
 }
+get_all_seasons(my_urls)
+}
+
+#### Call function with duration
+get_all_seasons_results(1950,2020)
 
 
-#### Call function
-get_all_seasons_results(my_urls)
+
+
+
+
+
+database$year <-str_sub(database$race_date, start= -4)
