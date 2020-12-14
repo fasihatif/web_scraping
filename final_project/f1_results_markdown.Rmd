@@ -13,6 +13,7 @@ library(gganimate)
 library(stringr)
 install.packages("gifski")
 library(gifski)
+library(knitr)
 ```
 
 ```{r, echo = FALSE}
@@ -83,6 +84,7 @@ if (length(laps) ==0) {
 # Join data in dataframe
 df <- data.frame('race_name' = gp_name, 'race_date' = race_date, 'winner' = driver_winner,'team' = team, 'laps' = laps)
 return(df)
+write_csv(f1_results.csv)
 }
 ```
 
@@ -114,6 +116,16 @@ get_all_seasons(my_urls) #call function to input urls in lapply
 get_all_seasons_results(2015,2020)
 ```
 
+Our dataframe for the race results looks like below:
+
+```{r, echo = FALSE}
+table_format <- tail(database)
+library(knitr)
+kable(table_format)
+
+
+```
+
 ## Exploratory Data Analysis
 
 ### Top 5 most no of wins by F1 drivers (1950-2020)
@@ -132,11 +144,46 @@ database %>%
   
 ```
 
-The graph shows that Lewis Hamilton has been the most successful F1 driver of all time with 95 wins followed by the renowned Michael Schumacher with 91 wins and Sebestian Vettel with 53 wins.
+The graph shows that Lewis Hamilton has been the most successful F1 driver of all time with 95 wins followed by the renowned Michael Schumacher with 91 wins and Sebastian Vettel with 53 wins.
 
-```{r}
+```{r, echo = FALSE}
+database$year <-str_sub(database$race_date, start= -4)
+
 
 ```
 
 ```{r}
+database %>% 
+  group_by(race_name) %>%
+  summarize(most_venues = n()) %>%
+  arrange(desc(most_venues)) %>%
+  head(5) %>%
+  ggplot(aes(x = reorder(race_name, most_venues), y = most_venues, fill = race_name,label = most_venues)) + geom_col() + coord_flip() +geom_text(hjust = -0.3) +
+  labs( x = "F1 Race Winners", y = "Total no of Wins", title = "Top 5 most no of wins by F1 drivers (2010-2020)")
+```
+
+```{r, echo = FALSE, fig.width = 11, fig.height=5}
+
+drivers <- c("Lewis Hamilton","Michael Schumacher", "Sebastian Vettel", "Alain Prost", "Ayrton Senna")
+
+top_5_stats<- database %>% filter(winner %in% drivers)
+top_5_stats <- top_5_stats %>% mutate(year = as.numeric(year))
+
+
+top_5_per_year<- top_5_stats %>% 
+  group_by(year,winner) %>%
+  count(winner)
+
+top_5_per_year_cs <- top_5_per_year %>% group_by(winner) %>% arrange(winner,year) %>% mutate(cs = cumsum(n))
+
+  
+top_5_per_year_cs %>% ggplot(aes(x = year, y = cs, fill = winner,group = winner)) + geom_line(aes(colour=winner)) +
+  labs( x = "F1 Race Winners", y = "Total no of Wins", title = "Top 5 most no of wins by F1 drivers (2010-2020)") + scale_x_discrete(breaks = seq(1980,2020,by = 2))+ coord_cartesian(ylim = c(0,100)) +
+annotate("text", x = 1994, y = 57, label = "Alain Prost", fontface = 2) +
+annotate("text", x = 1996, y = 45, label = "Ayrton Senna", fontface = 2) +
+annotate("text", x = 1996, y = 45, label = "Michael Schumacher", fontface = 2) +
+annotate("text", x = 1996, y = 45, label = "Lewis Hamilton", fontface = 2) +
+annotate("text", x = 1996, y = 45, label = "Sebastian Vettel", fontface = 2)
+  
+  
 ```
